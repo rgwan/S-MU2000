@@ -23,6 +23,7 @@ constexpr u8 MAKER_TOSHIBA = 0x98;
 // 名前は UTF-8。Windows の fopen は ANSI のコードページで読むので、日本語の名前は wide で開く
 std::FILE *open_file(const std::string &path, const char *mode)
 {
+/*
 #ifdef _WIN32
 	const int n = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, nullptr, 0);
 	if (n > 0) {
@@ -34,6 +35,7 @@ std::FILE *open_file(const std::string &path, const char *mode)
 		return _wfopen(w.c_str(), m.c_str());
 	}
 #endif
+*/
 	return std::fopen(path.c_str(), mode);
 }
 

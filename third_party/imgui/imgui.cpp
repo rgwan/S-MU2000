@@ -1259,7 +1259,8 @@ IMPLEMENTING SUPPORT for ImGuiBackendFlags_RendererHasTextures:
 #ifndef IMGUI_DISABLE_TIME_FUNCTIONS
 #include <time.h>       // time(), localtime_r()/localtime_s()
 #if defined(_WIN32)
-static tm* localtime_r(const time_t* timep, tm* result) { return localtime_s(result, timep) == 0 ? result : NULL; }
+// static tm* localtime_r(const time_t* timep, tm* result) { return localtime_s(result, timep) == 0 ? result : NULL; }
+// MSYS2 MINGW64 GCC 15.3.0 doesn't need that
 #endif
 #endif
 

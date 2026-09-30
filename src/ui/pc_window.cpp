@@ -15,6 +15,8 @@
 #include <iterator>
 #include <shellapi.h>
 #include <vector>
+#include <stdio.h>
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -36,13 +38,16 @@ bool file_exists(const char *path)
 	return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
 
+extern "C" {
+extern FILE *__cdecl _wfopen(const wchar_t *_FileName, const wchar_t *_Mode);
+};
 // .syx の書き出し・読み込みの窓（xgui::ask_save_file・ask_open_file の頼み）。
 // 描き終えたあとに開く。窓が回っている間にタイマーが別のコマを描いても、前のコマは終わっている
 void file_dialog(HWND owner, xgui::file_ask ask, const std::vector<u8> &bytes)
 {
 	wchar_t path[MAX_PATH * 4] = {};
 	if (ask == xgui::file_ask::save)
-		wcscpy_s(path, L"S-MU2000.syx");
+		wcscpy(path, L"S-MU2000.syx");
 	// Bound here: the dialog reads the filter while it runs.
 	const std::wstring filter = dlg_filter(UI_TEXT(dlg_sysex_desc, "SysEx"), "*.syx",
 	                                       UI_TEXT(dlg_all_files, "All files"), "*.*");
@@ -53,11 +58,13 @@ void file_dialog(HWND owner, xgui::file_ask ask, const std::vector<u8> &bytes)
 	o.lpstrFile   = path;
 	o.nMaxFile    = DWORD(std::size(path));
 	o.lpstrDefExt = L"syx";
+	char path_char[MAX_PATH * 4] = {};
+	wcstombs(path_char, path, sizeof(path_char));
 	if (ask == xgui::file_ask::save) {
 		o.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 		if (!GetSaveFileNameW(&o))
 			return;
-		std::FILE *f = _wfopen(path, L"wb");
+		std::FILE *f = fopen(path_char, "wb");
 		const bool ok = f && std::fwrite(bytes.data(), 1, bytes.size(), f) == bytes.size();
 		if (f)
 			std::fclose(f);
@@ -70,7 +77,7 @@ void file_dialog(HWND owner, xgui::file_ask ask, const std::vector<u8> &bytes)
 	if (!GetOpenFileNameW(&o))
 		return;
 	std::vector<u8> in;
-	if (std::FILE *f = _wfopen(path, L"rb")) {
+	if (std::FILE *f = fopen(path_char, "rb")) {
 		u8 buf[65536];
 		size_t n;
 		while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0 && in.size() < (16u << 20))

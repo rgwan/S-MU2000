@@ -328,7 +328,7 @@ bool panel::drag(int x, int y, bridge &br)
 		// 横でも縦でも動かせるように、動いた量の大きいほうを取る。
 		// 丸いつまみは縦で動かしたくなるので
 		const int dx = x - m_drag_x, dy = m_drag_y - y;
-		const int span = std::max(1L, m_held->r.right - m_held->r.left);
+		const int span = std::max((int)1, (int)(m_held->r.right - m_held->r.left));
 		const int move = (std::abs(dy) > std::abs(dx)) ? dy : dx;
 		m_volume_now = std::clamp(m_drag_from / 127.0 + double(move) / span, 0.0, 1.0);
 		br.set_gain(float(m_volume_now));
@@ -337,7 +337,7 @@ bool panel::drag(int x, int y, bridge &br)
 	if (m_held->kind == spot_kind::adgain) {
 		// 音量つまみと同じ動かし方。まだ音には効かせない
 		const int dx = x - m_drag_x, dy = m_drag_y - y;
-		const int span = std::max(1L, m_held->r.right - m_held->r.left);
+		const int span = std::max((int)1, (int)(m_held->r.right - m_held->r.left));
 		const int move = (std::abs(dy) > std::abs(dx)) ? dy : dx;
 		m_adgain_now = std::clamp(m_drag_from / 127.0 + double(move) / span, 0.0, 1.0);
 		return true;

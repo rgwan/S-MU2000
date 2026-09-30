@@ -18,6 +18,7 @@
 
 #if SMTG_OS_WINDOWS
 #include <cstdio>
+#include <wchar.h>
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4996) // deprecated functions
@@ -173,7 +174,7 @@ bool UString::scanFloat (double& value) const
 bool UString::printFloat (double value, int32 precision)
 {
 #if SMTG_OS_WINDOWS
-	return swprintf ((wchar_t*)thisBuffer, L"%.*lf", precision, value) != -1;
+	return _swprintf ((wchar_t*)thisBuffer, L"%.*lf", precision, value) != -1;
 #elif SMTG_OS_MACOS
 	bool result = false;
 	CFStringRef cfStr = CFStringCreateWithFormat (0, 0, CFSTR("%.*lf"), precision, value);
